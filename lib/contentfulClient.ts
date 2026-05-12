@@ -106,7 +106,9 @@ export async function getAllSlugs(): Promise<string[]> {
     select: ['fields.slug'],
   } as Record<string, unknown>)
 
-  return entries.items
+  const slugs = entries.items
     .map((entry) => entry.fields?.slug)
-    .filter((slug): slug is string => Boolean(slug))
+    .filter((slug): slug is string => typeof slug === 'string')
+
+  return slugs
 }
