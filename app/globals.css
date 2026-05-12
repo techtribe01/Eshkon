@@ -2,15 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --background: #f5f5f4;          /* warm off-white canvas */
+  --surface: #ffffff;             /* card / panel */
+  --surface-muted: #f0efee;       /* subtle hover tint */
+
+  /* Sidebar */
+  --sidebar: #111110;             /* near-black sidebar */
+  --sidebar-surface: #1c1c1a;     /* sidebar item bg */
+  --sidebar-border: #2a2a27;      /* sidebar dividers */
+  --sidebar-text: #a8a29e;        /* muted sidebar text */
+  --sidebar-text-active: #fafaf9; /* active item text */
+
+  /* Brand */
+  --brand: #0f6fff;               /* primary blue */
+  --brand-hover: #0052d4;
+  --brand-foreground: #ffffff;
+
+  /* Accent */
+  --accent-green: #16a34a;
+  --accent-green-foreground: #ffffff;
+  --accent-amber: #d97706;
+
+  /* Text */
+  --foreground: #1c1917;          /* primary text */
+  --foreground-muted: #78716c;    /* secondary text */
+  --foreground-subtle: #a8a29e;   /* placeholder / hint */
+
+  /* Borders */
+  --border: #e7e5e4;
+  --border-strong: #d6d3d1;
+
+  /* Status */
+  --status-idle: #e7e5e4;
+  --status-idle-text: #78716c;
+  --status-publishing: #fef3c7;
+  --status-publishing-text: #92400e;
+  --status-success: #dcfce7;
+  --status-success-text: #15803d;
+  --status-error: #fee2e2;
+  --status-error-text: #b91c1c;
+
+  --radius: 0.5rem;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
 
+/* ─── prefers-reduced-motion (WCAG 2.2 requirement) ─────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -14,16 +14,21 @@ export default function HeroSection({
   imageUrl,
 }: HeroSectionProps) {
   return (
-    <section className="w-full bg-slate-900 py-16 text-center text-white">
-      <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-6">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+    <section className="w-full bg-sidebar px-6 py-20 text-center">
+      <div className="mx-auto flex max-w-3xl flex-col items-center gap-5">
+        <span className="inline-block rounded-full border border-sidebar-border px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-sidebar-text">
+          Hero
+        </span>
+        <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight text-sidebar-text-active sm:text-5xl">
           {headline}
         </h1>
         {subheading ? (
-          <p className="text-base text-slate-200 sm:text-lg">{subheading}</p>
+          <p className="max-w-lg text-base leading-relaxed text-sidebar-text sm:text-lg">
+            {subheading}
+          </p>
         ) : null}
         {imageUrl ? (
-          <div className="w-full max-w-3xl overflow-hidden rounded-2xl">
+          <div className="mt-4 w-full max-w-3xl overflow-hidden rounded-xl border border-sidebar-border">
             <Image
               src={imageUrl}
               alt=""

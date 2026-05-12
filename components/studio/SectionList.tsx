@@ -4,6 +4,13 @@ import { addSection, reorderSections } from '../../store/slices/draftPageSlice'
 import { selectSection } from '../../store/slices/uiSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
 
+const SECTION_TYPE_LABELS: Record<string, string> = {
+  hero: 'Hero',
+  cta: 'CTA',
+  featureGrid: 'Feature Grid',
+  testimonial: 'Testimonial',
+}
+
 export default function SectionList() {
   const dispatch = useAppDispatch()
   const sections = useAppSelector(
@@ -14,79 +21,104 @@ export default function SectionList() {
   )
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        {sections.map((section, index) => {
+    <div className="flex flex-col gap-1.5">
+      {sections.length === 0 ? (
+        <p className="px-1 py-4 text-center text-xs text-sidebar-text">
+          No sections yet.
+          <br />
+          Add one below.
+        </p>
+      ) : (
+        sections.map((section, index) => {
           const isSelected = section.id === selectedSectionId
           const isFirst = index === 0
           const isLast = index === sections.length - 1
+          const typeLabel =
+            SECTION_TYPE_LABELS[section.type] ?? section.type
 
           return (
             <div
               key={section.id}
-              className={`rounded-lg border px-3 py-2 text-sm ${
+              className={[
+                'group rounded-md border transition-colors',
                 isSelected
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-slate-200'
-              }`}
+                  ? 'border-brand bg-sidebar-surface'
+                  : 'border-sidebar-border hover:border-sidebar-text/30 hover:bg-sidebar-surface',
+              ].join(' ')}
             >
+              {/* Select row */}
               <button
                 type="button"
-                className="w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 onClick={() => dispatch(selectSection(section.id))}
-                aria-label={`Select section ${section.type}`}
+                aria-label={`Select ${typeLabel} section`}
+                aria-pressed={isSelected}
+                className="flex w-full items-center gap-2.5 px-3 py-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
               >
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
-                    {section.type}
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    {section.id.slice(0, 8)}
-                  </span>
-                </div>
+                {/* Type color dot */}
+                <span
+                  className={[
+                    'h-2 w-2 shrink-0 rounded-full',
+                    section.type === 'hero'
+                      ? 'bg-brand'
+                      : section.type === 'cta'
+                      ? 'bg-green-500'
+                      : 'bg-sidebar-text',
+                  ].join(' ')}
+                  aria-hidden="true"
+                />
+                <span
+                  className={`flex-1 truncate text-left text-xs font-medium ${
+                    isSelected ? 'text-sidebar-text-active' : 'text-sidebar-text'
+                  }`}
+                >
+                  {typeLabel}
+                </span>
+                <span className="font-mono text-[9px] text-sidebar-text/50">
+                  {section.id.slice(0, 6)}
+                </span>
               </button>
-              <div className="mt-2 flex gap-2">
+
+              {/* Reorder controls */}
+              <div className="flex items-center gap-1 border-t border-sidebar-border px-2 py-1.5">
                 <button
                   type="button"
-                  className="rounded-md border px-2 py-1 text-xs text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() =>
                     dispatch(
-                      reorderSections({
-                        fromIndex: index,
-                        toIndex: index - 1,
-                      }),
+                      reorderSections({ fromIndex: index, toIndex: index - 1 }),
                     )
                   }
                   disabled={isFirst}
                   aria-label="Move section up"
+                  className="flex h-5 w-5 items-center justify-center rounded text-sidebar-text transition-colors hover:bg-sidebar-border hover:text-sidebar-text-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  Up
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
                 <button
                   type="button"
-                  className="rounded-md border px-2 py-1 text-xs text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() =>
                     dispatch(
-                      reorderSections({
-                        fromIndex: index,
-                        toIndex: index + 1,
-                      }),
+                      reorderSections({ fromIndex: index, toIndex: index + 1 }),
                     )
                   }
                   disabled={isLast}
                   aria-label="Move section down"
+                  className="flex h-5 w-5 items-center justify-center rounded text-sidebar-text transition-colors hover:bg-sidebar-border hover:text-sidebar-text-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  Down
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
               </div>
             </div>
           )
-        })}
-      </div>
+        })
+      )}
 
+      {/* Add section button */}
       <button
         type="button"
-        className="rounded-md border border-dashed border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         onClick={() =>
           dispatch(
             addSection({
@@ -96,8 +128,12 @@ export default function SectionList() {
             }),
           )
         }
-        aria-label="Add section"
+        aria-label="Add new section"
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-sidebar-border py-2 text-xs font-medium text-sidebar-text transition-colors hover:border-sidebar-text/40 hover:text-sidebar-text-active focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
       >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+          <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
         Add Section
       </button>
     </div>

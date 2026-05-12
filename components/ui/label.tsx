@@ -6,7 +6,7 @@ export interface LabelProps
 const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, ...props }, ref) => {
     const classes = [
-      'text-sm font-medium text-slate-700',
+      'text-xs font-medium text-foreground-muted',
       className || '',
     ]
       .join(' ')

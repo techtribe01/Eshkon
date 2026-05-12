@@ -7,6 +7,13 @@ type ChangeSummary = {
   added: string[]
   typeChanged: string[]
   propsChanged: string[]
+  requiredPropRemoved: string[]
+}
+
+// Required props per section type — removal of any of these is a breaking (major) change
+const REQUIRED_PROPS: Record<string, string[]> = {
+  hero: ['headline'],
+  cta: ['label', 'url'],
 }
 
 function buildSectionMap(sections: Section[]): Map<string, Section> {
@@ -56,6 +63,7 @@ function getChangeSummary(prev: Page, next: Page): ChangeSummary {
   const added: string[] = []
   const typeChanged: string[] = []
   const propsChanged: string[] = []
+  const requiredPropRemoved: string[] = []
 
   prevMap.forEach((section, id) => {
     const nextSection = nextMap.get(id)
@@ -71,6 +79,19 @@ function getChangeSummary(prev: Page, next: Page): ChangeSummary {
 
     if (!deepEqual(section.props, nextSection.props)) {
       propsChanged.push(id)
+
+      // Check if any required prop was removed or emptied — that is a breaking change
+      const required = REQUIRED_PROPS[section.type] ?? []
+      const nextProps = nextSection.props as Record<string, unknown>
+      const hasRemovedRequired = required.some(
+        (key) =>
+          nextProps[key] === undefined ||
+          nextProps[key] === null ||
+          nextProps[key] === '',
+      )
+      if (hasRemovedRequired) {
+        requiredPropRemoved.push(id)
+      }
     }
   })
 
@@ -80,13 +101,17 @@ function getChangeSummary(prev: Page, next: Page): ChangeSummary {
     }
   })
 
-  return { removed, added, typeChanged, propsChanged }
+  return { removed, added, typeChanged, propsChanged, requiredPropRemoved }
 }
 
 export function computeVersionBump(prev: Page, next: Page): BumpType {
   const changes = getChangeSummary(prev, next)
 
-  if (changes.removed.length > 0 || changes.typeChanged.length > 0) {
+  if (
+    changes.removed.length > 0 ||
+    changes.typeChanged.length > 0 ||
+    changes.requiredPropRemoved.length > 0
+  ) {
     return 'major'
   }
 
