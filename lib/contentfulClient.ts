@@ -87,7 +87,7 @@ export async function getPage(slug: string, preview = false): Promise<Page> {
     content_type: 'page',
     'fields.slug': slug,
     include: 2,
-  })
+  } as Record<string, unknown>)
 
   const entry = entries.items[0]
   if (!entry) {
@@ -104,7 +104,7 @@ export async function getAllSlugs(): Promise<string[]> {
   const entries = await deliveryClient.getEntries<ContentfulPageSkeleton>({
     content_type: 'page',
     select: ['fields.slug'],
-  })
+  } as Record<string, unknown>)
 
   return entries.items
     .map((entry) => entry.fields?.slug)
