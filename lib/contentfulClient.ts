@@ -99,7 +99,9 @@ export async function getAllSlugs(): Promise<string[]> {
     select: ['fields.slug'],
   } as Record<string, unknown>)
 
-  return entries.items
-    .map((entry) => entry.fields?.slug)
-    .filter((slug): slug is string => Boolean(slug))
+  return entries.items.reduce<string[]>((acc, entry) => {
+    const slug = entry.fields?.slug
+    if (slug) acc.push(slug)
+    return acc
+  }, [])
 }
