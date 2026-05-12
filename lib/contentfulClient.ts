@@ -1,4 +1,5 @@
 import { createClient } from 'contentful'
+import type { EntrySkeletonType } from 'contentful'
 
 import type { Page, Section } from '../types'
 
@@ -17,6 +18,11 @@ type ContentfulPageFields = {
 type ContentfulSectionFields = {
   type?: string
   props?: Record<string, unknown>
+}
+
+interface ContentfulPageSkeleton extends EntrySkeletonType {
+  fields: ContentfulPageFields
+  contentTypeId: 'page'
 }
 
 function getEnv(name: string): string {
@@ -77,7 +83,7 @@ export async function getPage(slug: string, preview = false): Promise<Page> {
     getEnv('CONTENTFUL_ACCESS_TOKEN')
   }
 
-  const entries = await client.getEntries<ContentfulPageFields>({
+  const entries = await client.getEntries<ContentfulPageSkeleton>({
     content_type: 'page',
     'fields.slug': slug,
     include: 2,
@@ -95,7 +101,7 @@ export async function getAllSlugs(): Promise<string[]> {
   getEnv('CONTENTFUL_SPACE_ID')
   getEnv('CONTENTFUL_ACCESS_TOKEN')
 
-  const entries = await deliveryClient.getEntries<ContentfulPageFields>({
+  const entries = await deliveryClient.getEntries<ContentfulPageSkeleton>({
     content_type: 'page',
     select: ['fields.slug'],
   })
