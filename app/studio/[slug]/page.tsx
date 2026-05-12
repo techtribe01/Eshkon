@@ -77,14 +77,32 @@ export default function StudioPage({ params }: StudioPageProps) {
     const loadPage = async () => {
       try {
         const res = await fetch(`/api/page?slug=${params.slug}`)
-        if (!res.ok) return
-        const data = (await res.json()) as { page: unknown }
-        if (data.page) dispatch(setPage(data.page as never))
-      } catch (err) {
-        console.error(err)
+        if (res.ok) {
+          const data = (await res.json()) as { page: unknown }
+          if (data.page) {
+            dispatch(setPage(data.page as never))
+            return
+          }
+        }
+      } catch {
+        // fall through to blank page initialisation below
+      }
+
+      // If there is no persisted draft and no API data, seed a blank page so
+      // the "Add Section" button has a page object to push sections into.
+      if (!page) {
+        dispatch(
+          setPage({
+            id: params.slug,
+            slug: params.slug,
+            title: params.slug,
+            sections: [],
+          } as never),
+        )
       }
     }
     loadPage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, params.slug])
 
   const canPublish = role === 'publisher'
