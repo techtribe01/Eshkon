@@ -35,20 +35,24 @@ function getEnv(name: string): string {
   return value
 }
 
-const space = process.env.CONTENTFUL_SPACE_ID
-const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN
-const previewToken = process.env.CONTENTFUL_PREVIEW_TOKEN
+// Clients are created lazily inside each function so that missing env vars
+// only throw at call-time (e.g. during a real request) rather than at module
+// evaluation time (which happens during Next.js static-path generation and
+// would crash the build when Contentful env vars are not set).
+function getDeliveryClient() {
+  return createClient({
+    space: getEnv('CONTENTFUL_SPACE_ID'),
+    accessToken: getEnv('CONTENTFUL_ACCESS_TOKEN'),
+  })
+}
 
-const deliveryClient = createClient({
-  space: space || '',
-  accessToken: accessToken || '',
-})
-
-const previewClient = createClient({
-  space: space || '',
-  accessToken: previewToken || '',
-  host: 'preview.contentful.com',
-})
+function getPreviewClient() {
+  return createClient({
+    space: getEnv('CONTENTFUL_SPACE_ID'),
+    accessToken: getEnv('CONTENTFUL_PREVIEW_TOKEN'),
+    host: 'preview.contentful.com',
+  })
+}
 
 function mapSection(entry: ContentfulEntry<ContentfulSectionFields>): Section {
   const fields = entry.fields || {}
@@ -73,15 +77,7 @@ function mapPage(entry: ContentfulEntry<ContentfulPageFields>): Page {
 }
 
 export async function getPage(slug: string, preview = false): Promise<Page> {
-  const client = preview ? previewClient : deliveryClient
-
-  if (preview) {
-    getEnv('CONTENTFUL_SPACE_ID')
-    getEnv('CONTENTFUL_PREVIEW_TOKEN')
-  } else {
-    getEnv('CONTENTFUL_SPACE_ID')
-    getEnv('CONTENTFUL_ACCESS_TOKEN')
-  }
+  const client = preview ? getPreviewClient() : getDeliveryClient()
 
   const entries = await client.getEntries<ContentfulPageSkeleton>({
     content_type: 'page',
@@ -98,10 +94,7 @@ export async function getPage(slug: string, preview = false): Promise<Page> {
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  getEnv('CONTENTFUL_SPACE_ID')
-  getEnv('CONTENTFUL_ACCESS_TOKEN')
-
-  const entries = await deliveryClient.getEntries<ContentfulPageSkeleton>({
+  const entries = await getDeliveryClient().getEntries<ContentfulPageSkeleton>({
     content_type: 'page',
     select: ['fields.slug'],
   } as Record<string, unknown>)

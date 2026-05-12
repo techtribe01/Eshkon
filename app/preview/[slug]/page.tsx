@@ -1,7 +1,18 @@
 import ErrorBoundary from '../../../components/sections/ErrorBoundary'
-import { getPage } from '../../../lib/contentfulClient'
+import { getAllSlugs, getPage } from '../../../lib/contentfulClient'
 import { getSection } from '../../../lib/sectionRegistry'
 import { validatePage } from '../../../lib/schemas'
+
+// Return an empty list when Contentful env vars are not configured so that
+// Next.js can still build without throwing during static path collection.
+export async function generateStaticParams() {
+  try {
+    const slugs = await getAllSlugs()
+    return slugs.map((slug) => ({ slug }))
+  } catch {
+    return []
+  }
+}
 
 interface PreviewPageProps {
   params: { slug: string }
